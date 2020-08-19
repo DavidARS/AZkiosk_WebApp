@@ -1,0 +1,395 @@
+﻿<!DOCTYPE html>
+
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="utf-8" />
+    <title></title>
+    <style>
+        .node rect {
+            fill-opacity: .9;
+            shape-rendering: crispEdges;
+        }
+
+        .node text {
+            pointer-events: none;
+            /*text-shadow: 0 1px 0 #fff;*/
+        }
+
+        .link {
+            fill: none;
+            stroke: #000;
+            stroke-opacity: .2;
+        }
+
+            .link:hover {
+                stroke-opacity: .5;
+            }
+    </style>
+</head>
+
+<body>
+
+    <p id="chart">
+
+        <script src="http://d3js.org/d3.v3.js"></script>
+        <script>
+            var defaults = {
+                width: 700, //SVG width
+                svgHeight: 500, //SVG height
+                linkColorScheme: 0, //0 (Source), 1 (Target), 2 (Gradient)
+                units: "MGD", //units displayed with values
+                nodeWidth: 20, //width of rects
+                imgWidth: 40, //width of image
+                imgHeight: 60, //height of image
+                nodePadding: 20, //vertical space between nodes
+                // QUAY EDIT 4/5/16 BEGIN
+                // This keeps the recatnagles scaled to the actual values
+                //useQS: true, //use custom scaling to make rects match links
+                useQS: false, //use custom scaling to make rects match links
+                titlefontsize: "24px",
+                titleOffset: 20,
+                bucketfontsize: "16px",
+                fontFamily: "'Lato', sans-serif",
+                fontColor: "#4e4d4d",
+                // QUAY EDIT 4/5/16 END
+                autoScaleImgHeight: false, //scale image based on rect height
+                showText: true, //show text label beside Resource/Consumer
+                imgPath: "/Images/Sankey/White/" //User defined path for Resource/Consumer images
+            };
+            var red = '#E6585D';
+
+            var fields = { "GW_P": { "name": "Groundwater", "val": 364 }, "REC_P": { "name": "Reclaimed Water", "val": 1 }, "SUR_P": { "name": "Surface Water", "val": 93 }, "SURL_P": { "name": "Surface Lake Water", "val": 0 }, "SAL_P": { "name": "Surface Water (Saline)", "val": 0 }, "UD_P": { "val": 45, "name": "Cities and Towns" }, "AD_P": { "val": 604, "name": "Agriculture" }, "ID_P": { "val": 6, "name": "Industry" }, "PD_P": { "val": 5, "name": "Electricity Production" }, "UDN_P": { "val": 13 }, "ADN_P": { "val": 186 }, "IDN_P": { "val": 1 }, "PDN_P": { "val": 2 } };
+            var graph = { "nodes": [{ "name": "SUR_P" }, { "name": "AD_P" }, { "name": "GW_P" }, { "name": "UD_P" }, { "name": "ID_P" }, { "name": "PD_P" }, { "name": "REC_P" }], "links": [{ "source": 0, "target": 1, "value": 93 }, { "source": 2, "target": 3, "value": 32 }, { "source": 2, "target": 1, "value": 324 }, { "source": 2, "target": 4, "value": 5 }, { "source": 2, "target": 5, "value": 3 }, { "source": 6, "target": 1, "value": 1 }] };
+            var units = "MGD";
+            var pWidth = 550;
+            var pHeight = 490;
+
+            var margin = { top: 40, right: 10, bottom: 10, left: 10 },
+                width = pWidth - margin.left - margin.right,
+                height = pHeight - margin.top - margin.bottom;
+
+            var colorBrewer = {
+                "SUR_P": '#225ea8',
+                "SURL_P": '#25aae1',
+                "GW_P": '#41b6c4',
+                "REC_P": '#a1dab4',
+                "SAL_P": '#25aae1',
+                "UD_P": '#60BF7E',
+                "ID_P": '#60BF7E',
+                "AD_P": '#60BF7E',
+                "PD_P": '#60BF7E'
+            };
+
+            var formatNumber = d3.format(",.0f");   // zero decimal places
+            var format = function (d) { return formatNumber(d) + " " + units; };
+
+            var divID = "#chart";
+            // END SETUP VARIABLES
+            ///////////////////////////////////////////////////////////////////////
+
+            // Append the svg to the page
+            var svg = d3.select(divID).append("svg")
+                .attr("width", width + margin.left + margin.right)
+                .attr("height", height + margin.top + margin.bottom)
+              .append("g")
+                .attr("transform","translate(" + margin.left + "," + margin.top + ")");
+
+            // Append Sources title to svg
+            svg.append("text")
+                .attr("x", 0)
+                .attr("y", 0 - (margin.top / 2))
+                .attr("text-anchor", "start")
+                .style("font-family", defaults.fontFamily)
+                .style("font-size", defaults.titlefontsize)
+                .style("fill", defaults.fontColor)
+                .text("Sources of Water");
+
+            // Append Consumers title to svg
+            svg.append("text")
+                .attr("x", width)
+                .attr("y", 0 - (margin.top / 2))
+                .attr("text-anchor", "end")
+                .style("font-family", defaults.fontFamily)
+                .style("font-size", defaults.titlefontsize)
+                .style("fill", defaults.fontColor)
+                .text("Consumers of Water");
+
+
+            var sources = ["SUR_P", "SURL_P", "SAL_P", "GW_P", "REC_P"];
+            var demands = ["UD_P", "AD_P", "ID_P", "PD_P"];
+            var deficits = ["UDN_P", "ADN_P", "IDN_P", "PDN_P"];
+            var consumers = ["UD_P", "UDN_P", "AD_P", "ADN_P", "ID_P", "IDN_P", "PD_P", "PDN_P"];
+
+            function getDemandDeficitName(name) {
+                return (name.split('_')[0]) + "N_P";
+            }
+
+            function getDemandMet(d, name){
+                var value = d.val - fields[getDemandDeficitName(name)].val;
+                return value;
+            }
+
+            var yMax = defaults.nodePadding;
+            demands.forEach(function (name) {
+                var obj = fields[name];
+                
+                yMax += Math.max(obj.val, 1);
+                yMax += defaults.nodePadding;
+            });
+
+            var x = d3.scale.linear().range([0, width]);
+            var y = d3.scale.linear().range([0, height]);
+
+            // Scale the range of the data
+            x.domain([0, 1]);
+            y.domain([0, yMax]);
+
+            function computeLinkDepths() {
+                var nodes = graph.nodes;
+                var links = graph.links;
+
+                var position = 0;
+                sources.forEach(function (name) {
+                    var obj = fields[name];
+                    obj.x = x(0);
+                    obj.y = position;
+
+                    obj.dx = defaults.nodeWidth;
+                    obj.dy = y(Math.max(obj.val, 1));
+
+                    position += obj.dy + defaults.nodePadding;
+                });
+
+                position = 0;
+                consumers.forEach(function (name) {
+                    var condition = name.indexOf('N_P') > -1;
+                    var obj = fields[name];
+                    obj.x = x(1) - defaults.nodeWidth;
+                    obj.y = position;
+
+                    if (condition) {
+                        position += defaults.nodePadding;
+                        obj.dy = y(obj.val);
+                    }
+                    else {
+                        obj.dy = y(Math.max(getDemandMet(obj, name), 1));
+                    }
+
+                    obj.dx = defaults.nodeWidth;
+                    position += obj.dy;
+                });
+
+                graph.nodes.forEach(function (d) {
+                    var obj = fields[d.name];
+                    d.x = obj.x;
+                    d.y = obj.y;
+
+                    d.dy = obj.dy;
+                    d.dx = obj.dx;
+                });
+
+                nodes.forEach(function (node) {
+                    node.sourceLinks = [];
+                    node.targetLinks = [];
+                });
+
+                links.forEach(function (link) {
+                    link.dy = y(link.value);
+                });
+
+                links.forEach(function (link) {
+                    var source = link.source,
+                        target = link.target;
+                    if (typeof source === "number") source = link.source = nodes[link.source];
+                    if (typeof target === "number") target = link.target = nodes[link.target];
+                    source.sourceLinks.push(link);
+                    target.targetLinks.push(link);
+                });
+
+                nodes.forEach(function (node) {
+                    node.sourceLinks.sort(ascendingTargetDepth);
+                    node.targetLinks.sort(ascendingSourceDepth);
+                });
+
+                nodes.forEach(function (node) {
+                    node.value = Math.max(
+                      d3.sum(node.sourceLinks, value),
+                      d3.sum(node.targetLinks, value)
+                    );
+                });
+
+                nodes.forEach(function (node) {
+                    var sy = 0, ty = 0;
+                    node.sourceLinks.forEach(function (link) {
+                        link.sy = sy;
+                        sy += link.dy;
+                    });
+
+                    node.targetLinks.forEach(function (link) {
+                        link.ty = ty;
+                        ty += link.dy;
+                    });
+                });
+
+                function value(link) {
+                    return link.value;
+                }
+
+                function ascendingSourceDepth(a, b) {
+                    return a.source.y - b.source.y;
+                }
+
+                function ascendingTargetDepth(a, b) {
+                    return a.target.y - b.target.y;
+                }
+            }
+
+            computeLinkDepths();
+
+            var curvature = .5;
+            function path(d, offset) {
+                var x0 = d.source.x + d.source.dx,
+                    x1 = d.target.x,
+                    xi = d3.interpolateNumber(x0, x1),
+                    x2 = xi(curvature),
+                    x3 = xi(1 - curvature),
+                    y0 = d.source.y + d.sy + d.dy / 2,
+                    y1 = d.target.y + d.ty + d.dy / 2;
+                return "M" + x0 + "," + y0
+                     + "C" + x2 + "," + y0
+                     + " " + x3 + "," + y1
+                     + " " + x1 + "," + y1;
+            }
+
+            // add in the links
+            var link = svg.append("g").selectAll(".link")
+                .data(graph.links)
+              .enter().append("path")
+                .attr("class", "link")
+                .attr("d", path)
+                .style("stroke", function (d) {
+                    switch (defaults.linkColorScheme) {
+                        //Source
+                        case 0:
+                            d.color = colorBrewer[d.source.name.replace(/ .*/, "")];
+                            break;
+                            //Target
+                        case 1:
+                            d.color = colorBrewer[d.target.name.replace(/ .*/, "")];
+                            break;
+                            //Gradient
+                        case 2:
+                            d.color = "url(#" + getLinkID(d) + ")";
+                            break;
+                    }
+                    return d.color;
+                })
+                .style("stroke-width", function (d) { return Math.max(1, d.dy); })
+                .style("fill", "none")
+                .style("stroke-opacity", .5)
+                .sort(function (a, b) { return b.dy - a.dy; });
+
+            // add the link titles
+            link.append("title")
+                  .text(function (d) {
+                      return fields[d.source.name].name + " → " +
+                              fields[d.target.name].name + "\n" + format(d.value);
+                  });
+
+            var node = svg.append("g").selectAll(".node")
+                .data(graph.nodes)
+                .enter().append("g")
+                .attr("class", "node")
+                .attr("id", function (d) { return d.name + "_node"; })
+                .attr("transform", function (d) {
+                    return "translate(" + d.x + "," + d.y + ")";
+                });
+
+            // add the rectangles for the nodes (Consumers/Resources)
+            node.append("rect")
+                .attr("height", function (d) {
+                    //console.log(d)
+                    return d.dy;
+                })
+                .attr("width", defaults.nodeWidth)
+                .style("fill", function (d) {
+                    return d.color = colorBrewer[d.name.replace(/ .*/, "")];
+                })
+                .style("stroke", function (d) {
+                    return d3.rgb(d.color).darker(2);
+                })
+              .append("title")
+                .text(function (d) {
+                    if (fields[(d.name.split('_')[0]) + "N_P"])
+                        return fields[d.name].name + "\nDemand: " + format(d.value);
+                    else
+                        return fields[d.name].name + "\nAvailable: " + format(d.value);
+                });
+
+            // add the Deficit rectangles for the Consumers
+            node.filter(function (d) {
+                switch (d.name) {
+                    case "UD_P":
+                    case "ID_P":
+                    case "AD_P":
+                    case "PD_P":
+                        condition = true;
+                        break;
+                    default:
+                        condition = false;
+                        break;
+                }
+                return condition;
+            })
+              .append("rect")
+                .attr("height", function (d) {
+                    var name = d.name.split('_')[0];
+                    return fields[name + "N_P"].dy;
+                })
+                .attr("width", defaults.nodeWidth)
+                .attr("transform", function (d) {
+                    return "translate(0," + (d.dy + 1) + ")";
+                })
+                .style("fill", function (d) {
+                    return d.color = red;
+                })
+                .style("stroke", function (d) {
+                    return d3.rgb(d.color).darker(2);
+                })
+              .append("title")
+                .text(function (d) {
+                    var name = d.name.split('_')[0];
+                    return fields[d.name].name + "\nDeficit: " + format(fields[name + "N_P"].val);
+                });
+
+            if (defaults.showText) {
+                // add in the text that displays beside the rectangles
+                // for the nodes (Consumers/Resources)
+                node.append("text")
+                    // QUAY EDIT 4/7/16
+                    .style("font-size", defaults.bucketfontsize)
+                    .style("font-weight", "bold")
+                    .style("font-family", defaults.fontFamily)
+                    .style("fill", defaults.fontColor)
+                    //-----------------------
+                    .attr("x", -6)
+                    .attr("y", function (d) {
+                        var ratio = 1;
+                        if (fields[d.name + "N"])
+                            ratio += fields[d.name + "N"].val / fields[d.name].val;
+
+                        return (ratio) * d.dy / 2;
+                    })
+                    .attr("dy", ".35em")
+                    .attr("text-anchor", "end")
+                    .attr("transform", null)
+                    .text(function (d) { return fields[d.name].name; })
+                  .filter(function (d) { return d.x < width / 2; })
+                    .attr("x", 6 + defaults.nodeWidth)
+                    .attr("text-anchor", "start");
+            }
+
+        </script>
+
+</body>
+</html>

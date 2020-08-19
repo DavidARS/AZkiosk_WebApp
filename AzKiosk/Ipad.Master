@@ -1,0 +1,377 @@
+﻿<%@ Master Language="C#" AutoEventWireup="true" CodeBehind="Ipad.Master.cs" Inherits="WaterSimUI.IpadMaster" %>
+
+<%@ Register Src="UserControls/InputUserControl.ascx" TagName="InputUserControl" TagPrefix="Wsmi" %>
+
+<!DOCTYPE html>
+<html lang="en">
+<head runat="server">
+    <meta charset="utf-8" />
+    <title><%: Page.Title %> - WaterSim Arizona (WSAZ)</title>
+    <asp:PlaceHolder runat="server">
+        <%: Scripts.Render("~/bundles/modernizr") %>
+    </asp:PlaceHolder>
+    <webopt:BundleReference runat="server" Path="~/Content/css" />
+    <link href="~/favicon.ico" rel="shortcut icon" type="image/x-icon" />
+
+    <meta name="viewport" content="width=device-width, user-scalable=no" />
+    <meta http-equiv="cache-control" content="no-cache" />
+    <meta http-equiv="expires" content="-1" />
+    <meta http-equiv="pragma" content="no-cache" />
+    <asp:ContentPlaceHolder runat="server" ID="HeadContent" />
+
+    <link rel="stylesheet" href="//fonts.googleapis.com/css?family=Lato:300,400,600,700&amp;lang=en" />
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+</head>
+<body>
+    <%--<br>--%>
+    <div id="WSLoading" style="height: 100%; width: 100%; font-family: 'Lato', sans-serif;">
+        <div style="height: 50px; width: 1px;">
+            <hr />
+        </div>
+        <div style="font-size: 80px; color: black; text-align: center; height: 100px; vertical-align: middle">Loading</div>
+        <div style="font-size: 60px; color: black; text-align: center; height: 100px; vertical-align: middle">WaterSim Arizona</div>
+        <div style="text-align: center;">
+            <p>
+                <img src="Images/ASU_DCDC_3_20_2017.png" style="vertical-align: middle; width: 400px" />
+            </p>
+        </div>
+    </div>
+
+    <form runat="server" id="MainForm" style="display: none; height: 100%;">
+
+        <asp:ScriptManager runat="server">
+            <Scripts>
+                <%--To learn more about bundling scripts in ScriptManager see http://go.microsoft.com/fwlink/?LinkID=272931&clcid=0x409 --%>
+                <%--Framework Scripts--%>
+                <asp:ScriptReference Name="WebForms.js" Assembly="System.Web" Path="~/Scripts/WebForms/WebForms.js" />
+                <asp:ScriptReference Name="WebUIValidation.js" Assembly="System.Web" Path="~/Scripts/WebForms/WebUIValidation.js" />
+                <asp:ScriptReference Name="MenuStandards.js" Assembly="System.Web" Path="~/Scripts/WebForms/MenuStandards.js" />
+                <asp:ScriptReference Name="GridView.js" Assembly="System.Web" Path="~/Scripts/WebForms/GridView.js" />
+                <asp:ScriptReference Name="DetailsView.js" Assembly="System.Web" Path="~/Scripts/WebForms/DetailsView.js" />
+                <asp:ScriptReference Name="TreeView.js" Assembly="System.Web" Path="~/Scripts/WebForms/TreeView.js" />
+                <asp:ScriptReference Name="WebParts.js" Assembly="System.Web" Path="~/Scripts/WebForms/WebParts.js" />
+                <asp:ScriptReference Name="Focus.js" Assembly="System.Web" Path="~/Scripts/WebForms/Focus.js" />
+                <%--Site Scripts--%>
+            </Scripts>
+        </asp:ScriptManager>
+
+
+        <div id="containment-wrapper">
+
+            <!-- Full screen mode -->
+            <div id="container" style="height: 100%;">
+                <div id="specialstuff" style="height: 100%;">
+                    <!-- End -->
+                    <div class="wrapper">
+                        <div id="top-div">
+                            <div id="cactus-jack-container">
+                                <img id="cactus-jack-img" src="Images/Cactus_0.png" />
+                                <div id="cactus-jack-span-container">
+                                    <span id="cactus-jack-span-pre">
+                                        Welcome to 2018!
+                                    </span>
+                                    <div class="cactus-jack-line-break"></div>
+                                    <span id="cactus-jack-span">
+                                        Evaluate the health and efficiency of your region's water system.
+                                        Then, decide what choices you can make to improve your regions outlook.
+                                        Run the model to see your results.
+                                        Click the “next challenge” button when you are ready to move on.
+                                    </span>
+                                </div>
+                            </div>
+
+                            <div class="assessment">
+                                <%--<div class="assessment-header">
+                                    <span class="assessment-title">Assessment: </span><span class="assessment-status" data-fld="SAI_P">Uh oh!</span>
+                                    <div class="assessment-line-break"></div>
+                                    <div class="assessment-title-space"></div>
+                                    <span class="assessment-indicator-prefix">Supplies and demands are</span>
+                                    <span class="assessment-indicator-prefix" data-fld="RNDR_P">well balanced.</span>
+                                    <span class="assessment-indicator-prefix">The regions' sustainability is</span>
+                                    <span class="assessment-indicator-prefix" data-fld="ASI_P">very high!</span>
+                                    <div style="clear: both"></div>
+                                </div>--%>
+
+                                <div id="assessment-good">
+                                    <span class="assessment-indicator-prefix">Doing Well:</span>
+                                    <span class="assessment-indicator-postfix">...</span>
+                                </div>
+
+                                <div id="assessment-bad">
+                                    <span class="assessment-indicator-prefix">Needs Improvement:</span>
+                                    <span class="assessment-indicator-postfix">...</span>
+                                </div>
+
+                                <!-- Assessment indicators are inserted below -->
+                            </div>
+
+                            <div style="clear: both;"></div>
+                            <%--<br style="clear: both;" />--%>
+                        </div>
+
+                        <div id="mid-div">
+                            <asp:ContentPlaceHolder runat="server" ID="GraphControls" />
+                        </div>
+
+                        <div id="bot-div">
+                            <div id="simulation-pane">
+                                <button type="button" class="btn run-model done" id="run-model-Main">RUN MODEL</button>
+                                <button type="button" class="btn next-challenge" id="next-challenge">NEXT CHALLENGE</button>
+                            </div>
+
+                            <div id="region-pane">
+                                <span class="title-arizona">Arizona</span>
+                                <span class="title-region"></span>
+                            </div>
+
+                            <div id="logo-pane">
+                                <img src="Images/Logos/Smithsonian.png" height="35" style="margin-top: 10px;" />
+                                <img src="Images/Logos/ASU.png" height="54" />
+                            </div>
+
+                            <div style="clear: both;"></div>
+                        </div>
+
+                        <div class="middle" style="display: none;">
+                            <div class="container">
+                                <div class="content">
+                                    <section class="content-wrapper main-content clear-fix">
+                                        <header class="header" style="display: none;">
+                                        </header>
+                                    </section>
+                                </div>
+                                <!-- .content -->
+                            </div>
+                            <!-- .container-->
+                            <div id="dragResize-policies-off" class="click-to-top">
+                                <aside id="left-title">
+                                    <div class="TheState" style="margin-bottom: 10px;">
+                                        <h2 id="dashboard-header-h0">Arizona</h2>
+                                    </div>
+                                </aside>
+                                <aside id="left-sidebar">
+                                    <asp:Panel ID="PanelUserInputs" runat="server">
+
+                                        <h1 style="display: block; left: auto; font-size: x-large; padding: 0 0 5px 0; margin-top: 3px; margin-bottom: 15px;">Policy Controls</h1>
+                                        <p></p>
+
+                                        <Wsmi:InputUserControl ID="SWMInputUserControl" FieldKeyWord="SWM_P" runat="server" />
+                                        <Wsmi:InputUserControl ID="GWMInputUserControl" FieldKeyWord="GWM_P" runat="server" />
+                                        <Wsmi:InputUserControl ID="RECMInputUserControl" FieldKeyWord="RECM_P" runat="server" />
+                                        
+                                        <Wsmi:InputUserControl ID="UCONInputUserControl" FieldKeyWord="UCON_P" runat="server" />
+                                        <Wsmi:InputUserControl ID="ACONInputUserControl" FieldKeyWord="ACON_P" runat="server" />
+                                        <Wsmi:InputUserControl ID="ICONInputUserControl" FieldKeyWord="ICON_P" runat="server" />
+                                        <Wsmi:InputUserControl ID="PCONInputUserControl" FieldKeyWord="PCON_P" runat="server" />
+
+                                        
+                                        <%--<Wsmi:InputUserControl ID="POPGRMInputUserControl" FieldKeyWord="POPGRM_P" runat="server" />--%>
+                                        <%--<Wsmi:InputUserControl ID="DESALInputUserControl" FieldKeyWord="DESAL_P" runat="server" />--%>
+
+                                        <Wsmi:InputUserControl ID="DSCNInputUserControl" FieldKeyWord="DSCN_P" runat="server" />
+
+                                        <asp:HiddenField ID="hvJSONData" runat="server" />
+                                    </asp:Panel>
+
+                                </aside>
+                                <!-- .left-sidebar -->
+                            </div>
+                        </div>
+                        <!-- .middle-->
+
+                        <%--<footer class="footer">
+                            <img id="pageslide-button-container" class="gear-button" src="Images/gear_icon.png" width="32" height="32" title="" style="margin-right: 20px;" />
+                            <button type="button" class="btn run-model done" id="run-model-Main">RUN MODEL</button>
+
+                            <div class="feedback">
+                                <div class="finish" style="width: 250px;">
+                                    <input type="button" id="Finish_button" class="Continue" value="Next Challenge" style="display: none; white-space: normal; margin: 5px; height: 110px; width: 110px; border-radius: 110px; text-align: center; padding: 1px; float: left; background-color: #F6E9DA; font-family: Arial; font-size: 20px; font-weight: bold;" />
+                                </div>
+                            </div>
+                        </footer>--%>
+                        <!-- .footer -->
+
+                    </div>
+                    <!-- .wrapper -->
+
+                    <!-- Decision Theater mode -->
+                </div>
+                <!-- .specialstuff -->
+                <div id="decision-theater-right-no-dt">
+                    <div id="drop-right-no-dt" class="fbox"></div>
+                </div>
+                <!-- End -->
+                <div id="pageslide">
+                    <h1>Tools</h1>
+
+                    <div id="settings-button-container">
+                        <img id="closeGear" class="gear-button" src="Images/gear_icon.png" width="24" height="24" title="" />
+                    </div>
+
+                    <!-- Geography container -->
+                    <div>
+                        <!-- Nav tabs -->
+                        <ul class="nav nav-tabs" role="tablist">
+                            <li class="nav-item">
+                                <a class="nav-link custom-nav-link active" data-toggle="tab" id="geographyPane-tab" name="#geographyPane" role="tab">Geography</a>
+                            </li>
+                        </ul>
+
+                        <!-- Tab panes -->
+                        <div class="tab-content" style="border: 1px solid #1C97D3; padding: 5px 15px; border-top: none;">
+                            <div class="tab-pane active" id="geographyPane" role="tabpanel" style="position: relative;">
+                                <div id="settings-tabs-geography-2">
+                                    <span class="settings-tab-title">Select Region:</span>
+                                    <select id="providersList">
+                                        <option value="AZN10" data-related-item="geography-regional" selected>North</option>
+                                        <option value="AZSE23" data-related-item="geography-regional">Southeast</option>
+                                        <option value="AZCN24" data-related-item="geography-regional">Central North</option>
+                                        <option value="AZW9" data-related-item="geography-regional">West</option>
+                                        <option value="AZCS8" data-related-item="geography-regional">Central South</option>
+                                        <%--<option value="CAN4" data-related-item="geography-regional">California North</option>
+                                        <option value="CASE2" data-related-item="geography-regional">California Southeast</option>
+                                        <option value="CASW1" data-related-item="geography-regional">California Southwest</option>
+                                        <option value="COFR17" data-related-item="geography-regional">Colorado Front Range</option>
+                                        <option value="CONIB19" data-related-item="geography-regional">Colorado Not In Basin</option>
+                                        <option value="COIB18" data-related-item="geography-regional">Colorado In Basin</option>
+                                        <option value="NVNIB7" data-related-item="geography-regional">Nevada Not In Basin</option>
+                                        <option value="NVS5" data-related-item="geography-regional">Nevada South</option>
+                                        <option value="NVIB6" data-related-item="geography-regional">Nevada In Basin</option>
+                                        <option value="NMC20" data-related-item="geography-regional">New Mexico Central</option>
+                                        <option value="NMG25" data-related-item="geography-regional">New Mexico Gila</option>
+                                        <option value="NMNIB22" data-related-item="geography-regional">New Mexico Not</option>
+                                        <option value="NMIB21" data-related-item="geography-regional">New Mexico In</option>
+                                        <option value="UTNIB13" data-related-item="geography-regional">Utah Not In Basin</option>
+                                        <option value="UTIB12" data-related-item="geography-regional">Utah In Basin</option>
+                                        <option value="UTSL11" data-related-item="geography-regional">Utah Salt Lake</option>
+                                        <option value="WYyNIB" data-related-item="geography-regional">Wyoming Not In Basin</option>
+                                        <option value="WYIB15" data-related-item="geography-regional">Wyoming In Basin</option>
+                                        <option value="WYSW14" data-related-item="geography-regional">Wyoming Southwest</option>
+                                        <option value="COB" data-related-item="geography-regional">Colorrado River Basin</option>--%>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+
+                        <%--<button type="button" class="btn btn-sec" id="map-button" style="margin-top: 10px">Region Map</button>--%>
+                        <button type="button" class="btn btn-sec" id="skip-challenge">SKIP CHALLENGE</button>
+                    </div>
+
+                    <br />
+
+                    
+                    <span class="settings-tab-title" style="text-align: center;">Scenario</span>
+                    <div id="settings-scenarios-container">
+                        <!-- Nav tabs -->
+                        <ul class="nav nav-tabs" role="tablist">
+                            <li class="nav-item">
+                                <a class="nav-link custom-nav-link active" data-toggle="tab" id="baseScenario-tab" name="#baseScenario" role="tab">Base</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link custom-nav-link" data-toggle="tab" id="derivedScenario-tab" name="#derivedScenario" role="tab">Derived</a>
+                            </li>
+                        </ul>
+
+                        <!-- Tab panes -->
+                        <div class="tab-content" id="settings-tabs-scenarios" style="padding: 5px 15px; width: 100%;">
+                            <div class="tab-pane input-pane active" id="baseScenario" role="tabpanel" style="position: relative; width: 100%; margin-bottom: 5px;">
+                                <button type="button" id="loadBSbutton" class="btn btn-sec" name="base-scenario-button" >Load Base Scenario</button>
+                            </div>
+
+                            <div class="tab-pane input-pane" id="derivedScenario" role="tabpanel" style="position: relative; width: 100%; margin-bottom: 5px;">
+                                <ul id="adj-scenarios-list">
+                                    Oops!!! No Saved Scenarios...
+                                </ul>
+                                <button type="button" id="loadASbutton" class="btn btn-sec" name="saved-scenario-button" >Load Saved Scenario</button>
+                            </div>
+
+                            <button type="button" id="savebutton" class="btn btn-sec">Save Scenario</button>
+                            <button type="button" id="createbutton" class="btn btn-sec">Create New Scenario</button>
+                        </div>
+                    </div>
+
+                    
+                    <button type="button" id="ReportButton" class="btn btn-report" >Create Report</button>
+                    <br />
+                    <br />
+                    <button type="button" class="btn btn-credits info-item" data-fld="CREDITS">Credits</button>
+                    
+                    <br />
+                    <br />
+
+                    <div style="width: 100%;">
+                        <%--<img src="Images/Logos/NSF.png" height="50" style="margin: auto; display:block;"/>
+                        <img src="Images/Logos/ACF.png" height="50" style="margin: auto; display:block;"/>
+                        <img src="Images/Logos/ASU.png" height="50" style="margin: auto; display:block;"/>--%>
+                        <button type="button" id="hideLastInputButton" class="btn btn-sec">Hide Last Input Button</button>
+                        <button type="button" id="showLastInputButton" class="btn btn-sec">Show Last Input Button</button>
+                    </div>
+                    
+                    <div id="idDebugControls" style="font-size: 20px">
+                        <%--<p style="font-size: 24px">
+                            Debug Controls<br />
+                        </p>
+                        <div style="height: 80px">
+                            <p>
+                                <br />
+                                Select New State
+                               <select id="idSelectState" name="State" style="font-size: 16px">
+                                   <option value="Arizona">Arizona</option>
+                                   <option value="Florida">Florida</option>
+                                   <option value="Idaho">Idaho</option>
+                                   <option value="Illinois">Illinois</option>
+                                   <option value="Minnesota">Minnesota</option>
+                                   <option value="Wyoming">Wyoming</option>
+                               </select>
+                            </p>
+                        </div>
+                        <div style="height: 120px; vertical-align: middle">
+                            <p>
+                                Show 2015 :
+                                <input type="button" id="id2015Button" value="Run To 2015" />
+                            </p>
+                        </div>
+                    </div>--%>
+                    <br />
+                    <br />
+                    <div>
+                        <div class="version">
+                            <div class="APIversion" id="UI"></div>
+                            <div class="APIversion" id="Web"></div>
+                        </div>
+                        <div class="version">
+                            <div id="Version" class="APIversion"></div>
+                            <div id="Model" class="APIversion"></div>
+                        </div>
+                    </div>
+
+                </div>
+                <!-- .container-->
+                <div id="dialog" title="Saving Scenario" style="display: none; text-align: center;">
+                    <span class="settings-tab-title">Enter Scenario Name:</span><br />
+                    <input id="tbdialogScenarioName" type="text" style=""/>
+                </div>
+                <div id="loading-dialog" title="" style="display:none; text-align:center;">
+                    <span class="settings-tab-title" style="font-size: 50px;">Loading...</span>
+                </div>
+            </div>
+            <!-- .containment-wrapper-->
+            </div>
+        </div>
+        <div id="thankyou-div">
+            <div id="thankyou-cactus-jack-container">
+                <!--<img id="thankyou-cactus-jack-img" src="Images/Cactus_2.png" />
+                <div id="thankyou-cactus-jack-span-container">
+                    <span id="thankyou-cactus-jack-span">
+                        Great Job!
+                        <br />
+                        Thank you for playing!
+                    </span>
+                </div>-->
+                <img id="" style="max-height: 100%; max-width: 100%; object-fit: contain" src="Images/ThankYou.jpg">
+            </div>
+        </div>
+    </form>
+    <script src="Scripts/Custom/load-files.js"></script>
+</body>
+</html>

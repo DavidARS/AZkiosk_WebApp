@@ -1,0 +1,164 @@
+﻿.input-pane {
+    width: 417px;
+}
+
+.policy-title {
+    display: block;
+    left: auto;
+    /*font: 800 24px Lato-Black, Lato;*/
+    font: 800 23px Lato-Black, Lato;
+    margin: 10px 0 0;
+    color: #4E4D4D;
+}
+
+.field-name {
+    color: #4E4D4D;
+    /*font: 600 17px Lato-Semibold, Lato;*/
+    font: 600 16px Lato-Semibold, Lato;
+}
+
+.info-icon {
+    position: absolute;
+    right: 0;
+    top: 12px;
+    width: 12px;
+    cursor: pointer;
+}
+
+.controlgroup {
+    position: relative;
+}
+
+.radio-container, .radio-container-climate {
+    position: relative;
+    /*margin-bottom: 15px;*/
+    margin-right: 0px !important;
+    /*margin-right: 10px;*/
+    /*margin-top: 15px;*/
+    /*height:50px;*/
+}
+
+    .radio-container label.ui-button, .radio-container-climate label.ui-button {
+        border: 1px solid #FFFFFF;
+        /*color: #4E4D4D !important;*/
+        color: black !important;
+        font: 600 12px Lato-Semibold, Lato !important;
+        width: 70px;
+        height: 28px;
+        /*min-width: 20%;*/
+    }
+
+    .radio-container label.ui-state-active span, .radio-container-climate label.ui-state-active span {
+        color: black !important;
+        border: 1px solid black;
+    }
+
+    .radio-container label.ui-button {
+        width: 70px;
+        margin: 0 0.1px;
+    }
+
+
+    .radio-container-climate label.ui-button {
+        width: 80px;
+    }
+
+    .radio-container .ui-button-text-only .ui-button-text, .radio-container-climate .ui-button-text-only .ui-button-text {
+        padding: .4em 0.5em;
+    }
+
+.realclearfix:after {
+    content: "";
+    display: table;
+    clear: both;
+}
+
+.input-number {
+    font: 600 12px Lato-Semibold, Lato !important;
+    width: 70px;
+    height: 28px;
+    float: left;
+    width: 60px !important;
+    margin-left: 5px;
+    /*margin-bottom: 15px;*/
+    /*margin-top: 15px;*/
+    margin-top: 2.5px;
+    text-align: center;
+}
+
+.run-model {
+    /*float:left;*/
+    color: #FFFFFF;
+    width: 168px;
+    height: 54px;
+    font: 600 19px Lato-Semibold, Lato !important;
+    margin-right: 10px;
+    opacity: 1;
+}
+
+    .run-model.focus, .run-model:focus {
+        box-shadow: 0 0 0 0 !important;
+    }
+
+    .run-model:hover {
+        /*cursor: pointer;
+    color: #990033;*/
+        opacity: 0.7;
+        /*background-color: #4593AB;*/
+    }
+
+    .run-model.done {
+        background-color: #1D83A0;
+        border: 2px solid #1D83A0 !important;
+    }
+
+    .run-model.ready {
+        background-color: #60bf7e;
+        border: 2px solid #60bf7e !important;
+    }
+
+    .run-model.running {
+        background-color: #e6585d;
+        border: 2px solid #e6585d !important;
+    }
+
+.btn-settings {
+    /*float: left;*/
+    color: #1D83A0;
+    background-color: #FFFFFF;
+    width: 168px;
+    height: 54px;
+    font: 600 15px Lato-Semibold, Lato !important;
+    margin-left: 10px;
+    border: 2px solid #1D83A0 !important;
+}
+
+.gear-button {
+    cursor: pointer;
+}
+
+.finish {
+    width: 185px;
+    margin-left: 3px;
+    float: right;
+}
+
+.input-button-0 {
+    background: #C4ECF5 !important;
+}
+
+.input-button-1 {
+    background: #8BE6F7 !important;
+}
+
+.input-button-2 {
+    background: #55CDE4 !important;
+}
+
+.input-button-3 {
+    background: #37B6D7 !important;
+}
+
+.input-button-4 {
+    background: #32A8C9 !important;
+}
